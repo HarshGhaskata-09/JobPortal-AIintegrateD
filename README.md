@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Job Recommender System
 
 An AI-powered job recommendation platform connecting job seekers with employers using machine learning algorithms.
@@ -116,7 +117,7 @@ For detailed setup instructions, configuration, and troubleshooting, see **SETUP
 
 ## Support
 
-- Email: admin@jobportal.com
+- Email: harshghaskata155@gmail.com
 - Check SETUP.txt for detailed documentation
 
 ---
@@ -124,3 +125,6 @@ For detailed setup instructions, configuration, and troubleshooting, see **SETUP
 **Version**: 1.0.0  
 **Last Updated**: March 2026  
 **Developed by**: Job Recruiter Team
+=======
+# JobPortal-AIintegrateD
+>>>>>>> b108a4de32ec65720371b03555c9dbff81e4a559
