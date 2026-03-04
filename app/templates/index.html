@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Job Recommendation Portal{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="row align-items-center">
+        <div class="col-lg-6 mb-4">
+            <h1 class="hero-title">
+                Find Your Dream Job with AI
+            </h1>
+            <p class="hero-subtitle">
+                Get personalized job recommendations powered by advanced machine learning algorithms. 
+                Match your skills with thousands of opportunities.
+            </p>
+            
+            <!-- Search Box -->
+            <div class="search-box">
+                <input type="text" placeholder="Job title, keywords, or company..." id="jobSearch">
+                <button class="btn btn-primary" onclick="window.location.href='{{ url_for('jobs.browse_jobs') }}'">
+                    <i class="fas fa-search me-2"></i>Search Jobs
+                </button>
+            </div>
+            
+            <div class="d-flex flex-wrap gap-3 mt-4">
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Job Seeker Sign Up
+                    </a>
+                    <a href="{{ url_for('employer_auth.register') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-building me-2"></i>Employer Sign Up
+                    </a>
+                {% else %}
+                    {% if current_user.is_employer %}
+                        <a href="{{ url_for('employer.dashboard') }}" class="btn btn-success btn-lg">
+                            <i class="fas fa-chart-line me-2"></i>Dashboard
+                        </a>
+                        <a href="{{ url_for('jobs.post_job') }}" class="btn btn-outline-success btn-lg">
+                            <i class="fas fa-plus me-2"></i>Post Job
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-chart-line me-2"></i>Dashboard
+                        </a>
+                        <a href="{{ url_for('jobs.browse_jobs') }}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-search me-2"></i>Browse Jobs
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                <div class="card-header bg-primary text-white" style="border-radius: 20px 20px 0 0;">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recently Posted Jobs</h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if featured_jobs %}
+                        {% for job in featured_jobs[:4] %}
+                            <div class="mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-bold">{{ job.title }}</h6>
+                                        <div class="text-muted small mb-2">
+                                            <i class="fas fa-building me-1"></i>{{ job.company }}
+                                            {% if job.location %}
+                                                <span class="ms-2"><i class="fas fa-map-marker-alt me-1"></i>{{ job.location }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar-alt me-1"></i>{{ job.created_at.strftime('%b %d, %Y') }}
+                                        </small>
+                                        <br>
+                                        <a href="{{ url_for('jobs.job_detail', job_id=job.id) }}" class="btn btn-sm btn-primary mt-2">
+                                            View Details <i class="fas fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                    <span class="badge bg-success">New</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('jobs.browse_jobs') }}" class="btn btn-outline-primary w-100">
+                                View All Jobs <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No jobs posted yet. Check back soon!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card text-center p-4">
+                <div class="stat-icon mb-3">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <h3 class="stat-number mb-2">{{ total_active_jobs }}</h3>
+                <p class="stat-label mb-0">Active Jobs</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card text-center p-4">
+                <div class="stat-icon mb-3">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h3 class="stat-number mb-2">{{ total_companies }}</h3>
+                <p class="stat-label mb-0">Companies</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card text-center p-4">
+                <div class="stat-icon mb-3">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="stat-number mb-2">{{ total_job_seekers }}</h3>
+                <p class="stat-label mb-0">Job Seekers</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card text-center p-4">
+                <div class="stat-icon mb-3">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="stat-number mb-2">{{ success_rate }}{% if success_rate != 'N/A' %}%{% endif %}</h3>
+                <p class="stat-label mb-0">Success Rate</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h2 class="display-6 fw-bold mb-3">Why Choose JobRecommender?</h2>
+        <p class="lead text-muted">Discover the features that make us the best job matching platform</p>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card h-100 p-4 text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h4 class="feature-title mb-3">AI-Powered Matching</h4>
+                <p class="feature-description text-muted">
+                    Our advanced algorithms analyze your skills and experience to find the perfect job matches.
+                </p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card h-100 p-4 text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h4 class="feature-title mb-3">Instant Recommendations</h4>
+                <p class="feature-description text-muted">
+                    Get personalized job recommendations in real-time based on your profile and preferences.
+                </p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card h-100 p-4 text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h4 class="feature-title mb-3">Verified Companies</h4>
+                <p class="feature-description text-muted">
+                    All companies are verified to ensure you're applying to legitimate job opportunities.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Categories Section -->
+{% if job_categories %}
+<div class="container my-5">
+    <div class="text-center mb-4">
+        <h2 class="h3 fw-bold mb-3">Popular Job Categories</h2>
+        <p class="text-muted">Explore opportunities across various industries</p>
+    </div>
+    <div class="row g-3">
+        {% for category in job_categories %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="category-card p-3 text-center h-100">
+                    <div class="category-icon mb-2">
+                        <i class="{{ category.icon or 'fas fa-briefcase' }}"></i>
+                    </div>
+                    <h6 class="category-name mb-0">{{ category.name }}</h6>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- CTA Section -->
+<div class="container my-5">
+    <div class="cta-card p-5 text-center text-white">
+        <h2 class="display-6 fw-bold mb-3">Ready to Find Your Dream Job?</h2>
+        <p class="lead mb-4">Join thousands of job seekers who found their perfect match</p>
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-5">
+                <i class="fas fa-user-plus me-2"></i>Create Free Account
+            </a>
+        {% else %}
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-light btn-lg px-5">
+                <i class="fas fa-chart-line me-2"></i>View Your Dashboard
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.feature-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #f0f0f0;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+}
+
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+}
+
+.feature-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.category-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+    border: 1px solid #f0f0f0;
+    cursor: pointer;
+}
+
+.category-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border-color: var(--primary-color);
+}
+
+.category-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.category-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.cta-card {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+}
+</style>
+
+<script>
+// Search functionality
+document.getElementById('jobSearch').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        const query = e.target.value;
+        window.location.href = `{{ url_for('jobs.browse_jobs') }}?search=${encodeURIComponent(query)}`;
+    }
+});
+</script>
+{% endblock %}

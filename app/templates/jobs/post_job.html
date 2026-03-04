@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Post a Job - Job Recommendation Portal{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Post a Job</h1>
+
+<form method="post">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label" for="title">Job Title</label>
+                <input class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="company">Company</label>
+                <input class="form-control" id="company" name="company" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="location">Location</label>
+                <input class="form-control" id="location" name="location">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="job_type">Job Type</label>
+                <select class="form-select" id="job_type" name="job_type">
+                    <option value="Full-time">Full-time</option>
+                    <option value="Part-time">Part-time</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Contract">Contract</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="required_skills">Required Skills (comma separated)</label>
+                <input class="form-control" id="required_skills" name="required_skills">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label" for="description">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="requirements">Detailed Requirements</label>
+                <textarea class="form-control" id="requirements" name="requirements" rows="4"></textarea>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label class="form-label" for="experience_min">Min Experience (years)</label>
+                    <input type="number" class="form-control" id="experience_min" name="experience_min" min="0">
+                </div>
+                <div class="col">
+                    <label class="form-label" for="experience_max">Max Experience (years)</label>
+                    <input type="number" class="form-control" id="experience_max" name="experience_max" min="0">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <label class="form-label" for="salary_min">Min Salary</label>
+                    <input type="number" class="form-control" id="salary_min" name="salary_min" min="0">
+                </div>
+                <div class="col">
+                    <label class="form-label" for="salary_max">Max Salary</label>
+                    <input type="number" class="form-control" id="salary_max" name="salary_max" min="0">
+                </div>
+            </div>
+            <div class="mb-3 mt-3">
+                <label class="form-label" for="category">Category</label>
+                <select class="form-select" id="category" name="category">
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="deadline">Application Deadline</label>
+                <input type="date" class="form-control" id="deadline" name="deadline">
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Publish Job</button>
+</form>
+{% endblock %}
+

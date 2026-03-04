@@ -1,0 +1,845 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.full_name }} - Portfolio{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Professional Portfolio Styles */
+.portfolio-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #ffffff;
+}
+
+/* Header Section */
+.portfolio-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 3rem 0 2rem;
+}
+
+.profile-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.profile-image-wrapper {
+    flex-shrink: 0;
+}
+
+.profile-image {
+    width: 140px;
+    height: 140px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.profile-headline {
+    font-size: 1.125rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.profile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.9375rem;
+}
+
+.meta-item i {
+    color: #9ca3af;
+    width: 16px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-primary-custom {
+    background: #2563eb;
+    color: white;
+    padding: 0.625rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-primary-custom:hover {
+    background: #1d4ed8;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-secondary-custom {
+    background: white;
+    color: #374151;
+    padding: 0.625rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-secondary-custom:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #374151;
+    transform: translateY(-1px);
+}
+
+/* Social Links */
+.social-links-horizontal {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.social-link-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid #e5e7eb;
+}
+
+.social-link-btn:hover {
+    background: #e5e7eb;
+    color: #111827;
+    transform: translateY(-2px);
+}
+
+/* Content Sections */
+.portfolio-content {
+    padding: 2rem 0;
+}
+
+.content-section {
+    background: white;
+    padding: 2rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.content-section:last-child {
+    border-bottom: none;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title i {
+    color: #2563eb;
+    font-size: 1.125rem;
+}
+
+.section-count {
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* About Section */
+.about-text {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: #374151;
+}
+
+/* Skills Section */
+.skills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.skill-item {
+    background: #f9fafb;
+    color: #374151;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s;
+}
+
+.skill-item:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+/* Experience Items */
+.experience-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.experience-item {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.experience-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: #f3f4f6;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2563eb;
+    font-size: 1.25rem;
+}
+
+.experience-content {
+    flex: 1;
+}
+
+.experience-header {
+    margin-bottom: 0.5rem;
+}
+
+.experience-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.experience-company {
+    font-size: 1rem;
+    color: #2563eb;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.experience-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+}
+
+.experience-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.experience-description {
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+}
+
+.current-badge {
+    background: #dcfce7;
+    color: #166534;
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+/* Projects Grid */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.project-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.2s;
+}
+
+.project-card:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.project-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.project-tech {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+}
+
+.project-description {
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    font-size: 0.9375rem;
+}
+
+.project-links {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.project-link {
+    font-size: 0.875rem;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.project-link:hover {
+    color: #1d4ed8;
+}
+
+/* Education & Certifications */
+.cert-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+}
+
+.cert-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: #dbeafe;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2563eb;
+}
+
+.cert-content {
+    flex: 1;
+}
+
+.cert-title {
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.cert-org {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.cert-date {
+    color: #9ca3af;
+    font-size: 0.8125rem;
+}
+
+/* Stats Bar */
+.stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid #f3f4f6;
+    border-bottom: 1px solid #f3f4f6;
+    margin: 1.5rem 0;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Edit Button - Professional */
+.edit-btn-wrapper {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+.edit-btn {
+    background: #2563eb;
+    color: white;
+    padding: 0.875rem 1.5rem;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.edit-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-section {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profile-meta {
+        justify-content: center;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+    }
+    
+    .social-links-horizontal {
+        justify-content: center;
+    }
+    
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .experience-item {
+        flex-direction: column;
+    }
+    
+    .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="portfolio-container">
+    <!-- Header Section -->
+    <div class="portfolio-header">
+        <div class="container">
+            <div class="profile-section">
+                <div class="profile-image-wrapper">
+                    <img src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}" 
+                         alt="{{ user.full_name }}" 
+                         class="profile-image">
+                </div>
+                
+                <div class="profile-info">
+                    <h1 class="profile-name">{{ user.full_name }}</h1>
+                    
+                    {% if portfolio and portfolio.headline %}
+                        <p class="profile-headline">{{ portfolio.headline }}</p>
+                    {% elif user.bio %}
+                        <p class="profile-headline">{{ user.bio[:150] }}{% if user.bio|length > 150 %}...{% endif %}</p>
+                    {% endif %}
+                    
+                    <div class="profile-meta">
+                        {% if user.location %}
+                        <div class="meta-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ user.location }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.email %}
+                        <div class="meta-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>{{ user.email }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.phone %}
+                        <div class="meta-item">
+                            <i class="fas fa-phone"></i>
+                            <span>{{ user.phone }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.experience_years %}
+                        <div class="meta-item">
+                            <i class="fas fa-briefcase"></i>
+                            <span>{{ user.experience_years }} years experience</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="action-buttons">
+                        {% if user.resume %}
+                        <a href="{{ url_for('static', filename='uploads/' + user.resume) }}" 
+                           target="_blank" 
+                           class="btn-primary-custom">
+                            <i class="fas fa-download"></i>
+                            Download Resume
+                        </a>
+                        {% endif %}
+                        
+                        {% if current_user.is_authenticated and current_user.id != user.id %}
+                        <a href="mailto:{{ user.email }}" class="btn-secondary-custom">
+                            <i class="fas fa-envelope"></i>
+                            Contact
+                        </a>
+                        {% endif %}
+                    </div>
+                    
+                    {% if user.website or user.github or user.linkedin or user.twitter %}
+                    <div class="social-links-horizontal">
+                        {% if user.website %}
+                        <a href="{{ user.website }}" target="_blank" class="social-link-btn" title="Website">
+                            <i class="fas fa-globe"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% if user.github %}
+                        <a href="{{ user.github }}" target="_blank" class="social-link-btn" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% if user.linkedin %}
+                        <a href="{{ user.linkedin }}" target="_blank" class="social-link-btn" title="LinkedIn">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% if user.twitter %}
+                        <a href="{{ user.twitter }}" target="_blank" class="social-link-btn" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-value">{{ user.experience_years or 0 }}</span>
+                    <span class="stat-label">Years Experience</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ portfolio.projects|length if portfolio else 0 }}</span>
+                    <span class="stat-label">Projects</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ user.get_skills_list()|length }}</span>
+                    <span class="stat-label">Skills</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ portfolio.certifications|length if portfolio else 0 }}</span>
+                    <span class="stat-label">Certifications</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="portfolio-content">
+        <div class="container">
+            
+            <!-- About Section -->
+            {% if user.bio or (portfolio and portfolio.summary) %}
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-user"></i>
+                        About
+                    </h2>
+                </div>
+                <p class="about-text">{{ portfolio.summary if portfolio and portfolio.summary else user.bio }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Skills Section -->
+            {% if user.skills %}
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-code"></i>
+                        Skills
+                    </h2>
+                    <span class="section-count">{{ user.get_skills_list()|length }}</span>
+                </div>
+                <div class="skills-grid">
+                    {% for skill in user.get_skills_list() %}
+                        <span class="skill-item">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Work Experience Section -->
+            {% if portfolio and portfolio.experiences %}
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-briefcase"></i>
+                        Experience
+                    </h2>
+                    <span class="section-count">{{ portfolio.experiences|length }}</span>
+                </div>
+                <div class="experience-list">
+                    {% for exp in portfolio.experiences %}
+                    <div class="experience-item">
+                        <div class="experience-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="experience-content">
+                            <div class="experience-header">
+                                <h3 class="experience-title">{{ exp.position }}</h3>
+                                <div class="experience-company">{{ exp.company }}</div>
+                                <div class="experience-meta">
+                                    <span>
+                                        <i class="fas fa-calendar"></i>
+                                        {{ exp.start_date.strftime('%b %Y') }} - 
+                                        {% if exp.current %}
+                                            Present
+                                        {% else %}
+                                            {{ exp.end_date.strftime('%b %Y') if exp.end_date else 'Present' }}
+                                        {% endif %}
+                                    </span>
+                                    {% if exp.location %}
+                                    <span>
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ exp.location }}
+                                    </span>
+                                    {% endif %}
+                                    {% if exp.current %}
+                                    <span class="current-badge">Current</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if exp.description %}
+                            <p class="experience-description">{{ exp.description }}</p>
+                            {% endif %}
+                            {% if exp.achievements %}
+                            <p class="experience-description"><strong>Key Achievements:</strong> {{ exp.achievements }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Projects Section -->
+            {% if portfolio and portfolio.projects %}
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-project-diagram"></i>
+                        Projects
+                    </h2>
+                    <span class="section-count">{{ portfolio.projects|length }}</span>
+                </div>
+                <div class="projects-grid">
+                    {% for project in portfolio.projects %}
+                    <div class="project-card">
+                        <h3 class="project-title">{{ project.name }}</h3>
+                        {% if project.technologies %}
+                        <div class="project-tech">{{ project.technologies }}</div>
+                        {% endif %}
+                        <p class="project-description">{{ project.description }}</p>
+                        <div class="project-links">
+                            {% if project.project_url %}
+                            <a href="{{ project.project_url }}" target="_blank" class="project-link">
+                                <i class="fas fa-external-link-alt"></i>
+                                Live Demo
+                            </a>
+                            {% endif %}
+                            {% if project.github_url %}
+                            <a href="{{ project.github_url }}" target="_blank" class="project-link">
+                                <i class="fab fa-github"></i>
+                                Code
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Education Section -->
+            {% if user.education or (portfolio and portfolio.education) %}
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-graduation-cap"></i>
+                        Education
+                    </h2>
+                </div>
+                {% if portfolio and portfolio.education %}
+                    <div class="experience-list">
+                        {% for edu in portfolio.education %}
+                        <div class="experience-item">
+                            <div class="experience-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="experience-content">
+                                <h3 class="experience-title">{{ edu.degree }}</h3>
+                                <div class="experience-company">{{ edu.institution }}</div>
+                                <div class="experience-meta">
+                                    {% if edu.start_date %}
+                                    <span>
+                                        <i class="fas fa-calendar"></i>
+                                        {{ edu.start_date.strftime('%Y') }} - {{ edu.end_date.strftime('%Y') if edu.end_date else 'Present' }}
+                                    </span>
+                                    {% endif %}
+                                    {% if edu.field_of_study %}
+                                    <span>{{ edu.field_of_study }}</span>
+                                    {% endif %}
+                                    {% if edu.grade %}
+                                    <span>Grade: {{ edu.grade }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="about-text">{{ user.education }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Certifications Section -->
+            {% if portfolio and portfolio.certifications %}
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-certificate"></i>
+                        Certifications
+                    </h2>
+                    <span class="section-count">{{ portfolio.certifications|length }}</span>
+                </div>
+                {% for cert in portfolio.certifications %}
+                <div class="cert-item">
+                    <div class="cert-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <div class="cert-content">
+                        <div class="cert-title">{{ cert.name }}</div>
+                        <div class="cert-org">{{ cert.issuing_organization }}</div>
+                        {% if cert.issue_date %}
+                        <div class="cert-date">Issued {{ cert.issue_date.strftime('%B %Y') }}</div>
+                        {% endif %}
+                        {% if cert.credential_url %}
+                        <a href="{{ cert.credential_url }}" target="_blank" class="project-link mt-2">
+                            <i class="fas fa-external-link-alt"></i>
+                            View Credential
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<!-- Edit Button (only for portfolio owner) -->
+{% if current_user.is_authenticated and current_user.id == user.id %}
+<div class="edit-btn-wrapper">
+    <a href="{{ url_for('portfolio.edit_portfolio') }}" class="edit-btn">
+        <i class="fas fa-edit"></i>
+        Edit Portfolio
+    </a>
+</div>
+{% endif %}
+{% endblock %}

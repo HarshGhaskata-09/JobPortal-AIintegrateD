@@ -1,0 +1,450 @@
+================================================================================
+JOB RECOMMENDER SYSTEM - SETUP GUIDE
+================================================================================
+
+PROJECT OVERVIEW
+----------------
+An AI-powered job recommendation platform connecting job seekers with employers
+using machine learning algorithms for intelligent job matching.
+
+SYSTEM REQUIREMENTS
+-------------------
+- Python 3.8 or higher
+- pip (Python package manager)
+- 500MB free disk space
+- Modern web browser (Chrome, Firefox, Edge, Safari)
+- Internet connection (for initial setup)
+
+DEPENDENCIES
+------------
+Core Framework:
+- Flask 2.3.0 - Web framework
+- Flask-SQLAlchemy - Database ORM
+- Flask-Login - User authentication
+- Flask-Bcrypt - Password hashing
+- Flask-Migrate - Database migrations
+- Flask-Mail - Email support
+
+Machine Learning:
+- scikit-learn - ML algorithms
+- pandas - Data manipulation
+- numpy - Numerical computing
+
+Frontend:
+- Bootstrap 5 - UI framework
+- Font Awesome - Icons
+- jQuery - JavaScript library
+
+INSTALLATION STEPS
+------------------
+
+Step 1: Extract Project
+- Extract the project folder to your desired location
+- Open terminal/command prompt in project directory
+
+Step 2: Create Virtual Environment
+Windows:
+  python -m venv venv
+
+Linux/Mac:
+  python3 -m venv venv
+
+Step 3: Activate Virtual Environment
+Windows (PowerShell):
+  .\venv\Scripts\Activate.ps1
+
+Windows (CMD):
+  .\venv\Scripts\activate.bat
+
+Linux/Mac:
+  source venv/bin/activate
+
+Step 4: Install Dependencies
+  pip install -r requirements.txt
+
+Step 5: Run Application
+  python -m app.run
+
+Step 6: Access Application
+- Open browser
+- Navigate to: http://localhost:5000
+- Application is ready to use!
+
+DEFAULT CREDENTIALS
+-------------------
+Admin Account:
+  Username: admin
+  Email: admin@jobportal.com
+  Password: Admin@123
+
+IMPORTANT: Change admin password after first login!
+
+ADMIN DASHBOARD ACCESS
+----------------------
+
+How to Access:
+1. Login with admin credentials
+2. Click profile dropdown (top-right corner)
+3. Select "Admin Dashboard" (red shield icon)
+4. Or navigate to: http://localhost:5000/admin
+
+Admin Features:
+
+Dashboard (/admin):
+  - View total users, jobs, applications
+  - Weekly statistics (new users, jobs, applications)
+  - User breakdown (employers vs job seekers)
+  - Recent activity feed (users, jobs, applications)
+  - Quick action buttons
+
+Manage Users (/admin/users):
+  - View all registered users
+  - Filter by type (Employer/Job Seeker/Admin)
+  - Activate/Deactivate user accounts
+  - Delete users (except admin accounts)
+  - Pagination support (20 per page)
+  - View user details and join dates
+
+Manage Jobs (/admin/jobs):
+  - View all job postings
+  - See job details and application counts
+  - Activate/Deactivate jobs
+  - Delete jobs
+  - View job details in new tab
+  - Pagination support (20 per page)
+
+View Applications (/admin/applications):
+  - See all job applications
+  - View applicant information
+  - Check application status (Pending/Reviewed/Accepted/Rejected)
+  - View associated job details
+  - Pagination support (20 per page)
+
+Admin Capabilities:
+  ✓ Full platform oversight
+  ✓ User account management
+  ✓ Content moderation
+  ✓ Activity monitoring
+  ✓ Real-time statistics
+  ✓ Cascade delete (employer deletion auto-deletes their jobs)
+
+Admin Security:
+  - Admin-only access (protected routes)
+  - Cannot delete admin accounts
+  - Confirmation prompts for deletions
+  - Session-based authentication
+
+CONFIGURATION
+-------------
+Edit config.py to customize:
+
+Database:
+- SQLALCHEMY_DATABASE_URI - Database location
+- Default: SQLite in instance/job_recommender.db
+
+Security:
+- SECRET_KEY - Session encryption key
+- Change this in production!
+
+File Uploads:
+- UPLOAD_FOLDER - Location for uploaded files
+- MAX_CONTENT_LENGTH - Maximum file size (16MB default)
+- ALLOWED_EXTENSIONS - Allowed file types
+
+FEATURES
+--------
+
+For Job Seekers:
+✓ User registration and profile management
+✓ Resume upload (PDF, DOC, DOCX)
+✓ Portfolio creation with projects
+✓ AI-powered job recommendations
+✓ Advanced job search with filters
+✓ Save jobs and track applications
+✓ Interactive AI chatbot assistant
+✓ Skill gap analysis
+✓ Interview preparation tips
+✓ Career advice
+
+For Employers:
+✓ Company registration
+✓ Post and manage job listings
+✓ View and manage applications
+✓ Search candidates by skills
+✓ Analytics dashboard
+✓ Application status tracking
+
+AI Chatbot:
+✓ Interactive 4-step job finder
+✓ Natural language understanding
+✓ Job search and recommendations
+✓ Interview preparation guidance
+✓ Salary negotiation tips
+✓ Career growth advice
+✓ Application tracking
+
+DATABASE STRUCTURE
+------------------
+
+Tables:
+- users: User accounts (job seekers & employers)
+- jobs: Job postings
+- job_applications: Application tracking
+- saved_jobs: Bookmarked jobs
+- portfolios: User portfolios
+- portfolio_skills: Portfolio skills
+- work_experiences: Work history
+- job_categories: Job categories
+
+Relationships:
+- User -> Jobs (one-to-many)
+- User -> Applications (one-to-many)
+- User -> Saved Jobs (one-to-many)
+- User -> Portfolio (one-to-one)
+- Job -> Applications (one-to-many)
+
+CASCADE DELETE:
+- When employer deletes account, all their jobs are auto-deleted
+- When user deletes account, all their data is removed
+
+FILE STRUCTURE
+--------------
+
+app/
+├── models/              Database models
+│   ├── user.py         User model
+│   ├── job.py          Job, Application, SavedJob models
+│   ├── portfolio.py    Portfolio models
+│   └── __init__.py
+│
+├── routes/              Route handlers
+│   ├── main.py         Homepage, dashboard
+│   ├── auth.py         Job seeker authentication
+│   ├── employer_auth.py Employer authentication
+│   ├── jobs.py         Job browsing, search, apply
+│   ├── employer.py     Employer dashboard, job management
+│   ├── portfolio.py    Portfolio management
+│   ├── chatbot.py      AI chatbot
+│   ├── admin.py        Admin panel
+│   └── __init__.py
+│
+├── ml_models/           Machine learning
+│   ├── recommender.py  Job recommendation engine
+│   ├── matching_algorithm.py Matching logic
+│   ├── skill_extractor.py Skill extraction
+│   └── __init__.py
+│
+├── templates/           HTML templates
+│   ├── base.html       Base template
+│   ├── index.html      Homepage
+│   ├── auth/           Job seeker pages
+│   ├── employer/       Employer pages
+│   ├── jobs/           Job pages
+│   ├── dashboard/      Dashboard pages
+│   ├── portfolio/      Portfolio pages
+│   └── chatbot/        Chatbot pages
+│
+├── static/              Static files
+│   ├── css/            Stylesheets
+│   ├── js/             JavaScript
+│   ├── images/         Images
+│   └── uploads/        User uploads
+│
+├── utils/               Helper functions
+│   ├── decorators.py   Custom decorators
+│   ├── helpers.py      Helper functions
+│   └── __init__.py
+│
+└── __init__.py          App initialization
+
+data/                    CSV datasets
+instance/                SQLite database
+venv/                    Virtual environment
+config.py                Configuration
+requirements.txt         Dependencies
+
+USAGE GUIDE
+-----------
+
+For Job Seekers:
+1. Register account at /auth/register
+2. Complete profile with skills and experience
+3. Upload resume (optional)
+4. Browse jobs or get AI recommendations
+5. Apply for jobs with cover letter
+6. Track applications in dashboard
+7. Use AI chatbot for assistance
+
+For Employers:
+1. Register company at /employer/register
+2. Complete company profile
+3. Post job listings
+4. Review applications
+5. Manage job postings
+6. Search candidates
+7. Track hiring analytics
+
+For Administrators:
+1. Login with admin credentials
+2. Access admin dashboard from profile menu
+3. Monitor platform statistics
+4. Manage users (activate/deactivate/delete)
+5. Moderate job postings
+6. View all applications
+7. Track weekly activity
+
+Using AI Chatbot:
+- Click floating chatbot button (bottom-right)
+- Type naturally: "Help me find a job"
+- Follow interactive prompts
+- Get personalized recommendations
+- Ask for career advice
+- Track your applications
+
+API ENDPOINTS
+-------------
+
+Authentication:
+  POST /auth/register          - User registration
+  POST /auth/login             - User login
+  GET  /auth/logout            - User logout
+  GET  /auth/profile           - User profile
+  POST /auth/delete-resume     - Delete resume
+  POST /auth/delete-profile-pic - Delete profile picture
+
+Employer Authentication:
+  POST /employer/register      - Employer registration
+  POST /employer/login         - Employer login
+  GET  /employer/logout        - Employer logout
+
+Jobs:
+  GET  /jobs/browse            - Browse all jobs
+  GET  /jobs/<id>              - Job details
+  POST /jobs/<id>/apply        - Apply for job
+  POST /jobs/<id>/save         - Save job
+  GET  /jobs/saved             - View saved jobs
+  POST /jobs/post              - Post new job (employer)
+  GET  /employer/my-jobs       - View my jobs (employer)
+  POST /employer/job/<id>/delete - Delete job (employer)
+
+Admin:
+  GET  /admin                  - Admin dashboard
+  GET  /admin/users            - Manage users
+  POST /admin/user/<id>/toggle-active - Activate/Deactivate user
+  POST /admin/user/<id>/delete - Delete user
+  GET  /admin/jobs             - Manage jobs
+  POST /admin/job/<id>/toggle-active - Activate/Deactivate job
+  POST /admin/job/<id>/delete  - Delete job
+  GET  /admin/applications     - View all applications
+
+Chatbot:
+  GET  /chatbot                - Chatbot page
+  POST /chatbot/message        - Send message to chatbot
+
+Portfolio:
+  GET  /portfolio/<username>   - View portfolio
+  POST /portfolio/edit         - Edit portfolio
+
+TROUBLESHOOTING
+---------------
+
+Issue: Port 5000 already in use
+Solution: 
+  - Kill process using port 5000
+  - Or change port in app/run.py
+
+Issue: Module not found
+Solution:
+  - Activate virtual environment
+  - Run: pip install -r requirements.txt
+
+Issue: Database error
+Solution:
+  - Delete instance/job_recommender.db
+  - Restart application (auto-recreates)
+
+Issue: Upload fails
+Solution:
+  - Check file size (max 16MB)
+  - Check file type (PDF, DOC, DOCX for resume)
+  - Check file type (PNG, JPG, JPEG for images)
+
+Issue: Can't login
+Solution:
+  - Check credentials
+  - Ensure account is active
+  - Use correct login page (job seeker vs employer)
+
+SECURITY NOTES
+--------------
+✓ Passwords are hashed with Bcrypt
+✓ CSRF protection enabled
+✓ SQL injection prevention (ORM)
+✓ XSS protection
+✓ Secure file uploads
+✓ Session management
+✓ Input validation
+
+IMPORTANT:
+- Change SECRET_KEY in config.py for production
+- Change admin password after first login
+- Use HTTPS in production
+- Regular database backups recommended
+
+DEVELOPMENT
+-----------
+
+Adding New Features:
+1. Create model in app/models/
+2. Create routes in app/routes/
+3. Create templates in app/templates/
+4. Update database if needed
+
+Database Migrations:
+  flask db init
+  flask db migrate -m "description"
+  flask db upgrade
+
+Running in Debug Mode:
+- Set DEBUG=True in config.py
+- Automatic reload on code changes
+- Detailed error messages
+
+PERFORMANCE TIPS
+----------------
+- Use database indexes for frequently queried fields
+- Implement caching for static content
+- Optimize ML model loading
+- Use pagination for large result sets
+- Compress static files
+- Use CDN for Bootstrap/jQuery in production
+
+BACKUP & RESTORE
+----------------
+
+Backup Database:
+  Copy instance/job_recommender.db to safe location
+
+Restore Database:
+  Replace instance/job_recommender.db with backup
+
+Backup Uploads:
+  Copy app/static/uploads/ folder
+
+SUPPORT
+-------
+For issues or questions:
+- Email: admin@jobportal.com
+- Check README.md for detailed documentation
+
+VERSION INFORMATION
+-------------------
+Version: 1.0.0
+Release Date: March 2026
+Developed by: Job Recruiter Team
+Python Version: 3.8+
+Flask Version: 2.3.0
+
+================================================================================
+END OF SETUP GUIDE
+================================================================================

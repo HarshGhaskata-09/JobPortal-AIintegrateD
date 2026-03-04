@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Employer Portal{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Analytics Dashboard</h1>
+
+<div class="alert alert-info">
+    <i class="fas fa-chart-line"></i> Detailed analytics coming soon! This feature will show:
+    <ul class="mb-0 mt-2">
+        <li>Applications over time</li>
+        <li>Views per job</li>
+        <li>Category performance</li>
+        <li>Conversion rates</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Your Jobs Overview</h5>
+            </div>
+            <div class="card-body">
+                <p>Total Jobs: {{ jobs|length }}</p>
+                <a href="{{ url_for('employer.my_jobs') }}" class="btn btn-primary">View All Jobs</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

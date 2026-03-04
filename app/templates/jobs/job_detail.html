@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} - {{ job.company }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h1 class="h3 mb-1">{{ job.title }}</h1>
+        <div class="text-muted mb-1">{{ job.company }}</div>
+        {% if job.location %}
+            <div class="text-muted small mb-1">{{ job.location }}</div>
+        {% endif %}
+        {% if job.job_type %}
+            <span class="badge bg-secondary">{{ job.job_type }}</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mb-4">
+    <h2 class="h5">Job Description</h2>
+    <p>{{ job.description }}</p>
+</div>
+
+{% if job.requirements %}
+    <div class="mb-4">
+        <h2 class="h5">Requirements</h2>
+        <p>{{ job.requirements }}</p>
+    </div>
+{% endif %}
+
+<div class="mb-4">
+    <h2 class="h5">Required Skills</h2>
+    {% if job.required_skills %}
+        {% for skill in job.get_required_skills_list() %}
+            <span class="badge bg-primary me-1 mb-1">{{ skill }}</span>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">Not specified.</p>
+    {% endif %}
+</div>
+
+{% if current_user.is_authenticated and not current_user.is_employer %}
+    <form method="post" action="{{ url_for('jobs.apply_job', job_id=job.id) }}" class="mb-3">
+        <div class="mb-3">
+            <label for="cover_letter" class="form-label">Cover Letter (optional)</label>
+            <textarea class="form-control" id="cover_letter" name="cover_letter" rows="4"></textarea>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" {% if has_applied %}disabled{% endif %}>
+                {% if has_applied %}Already Applied{% else %}Apply Now{% endif %}
+            </button>
+            <button type="button" class="btn {% if is_saved %}btn-secondary{% else %}btn-outline-secondary{% endif %} save-job-btn" data-job-id="{{ job.id }}" data-saved="{{ 'true' if is_saved else 'false' }}">
+                <i class="{% if is_saved %}fas{% else %}far{% endif %} fa-bookmark"></i>
+                <span class="save-text">{% if is_saved %}Saved{% else %}Save Job{% endif %}</span>
+            </button>
+        </div>
+    </form>
+{% endif %}
+
+{% if similar_jobs %}
+    <hr class="my-4">
+    <h2 class="h5 mb-3">Similar Jobs</h2>
+    <div class="row">
+        {% for sj in similar_jobs %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ sj.title }}</h5>
+                        <h6 class="card-subtitle mb-1 text-muted">{{ sj.company }}</h6>
+                        {% if sj.location %}
+                            <div class="small text-muted">{{ sj.location }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <a href="{{ url_for('jobs.job_detail', job_id=sj.id) }}" class="btn btn-sm btn-outline-primary">
+                            View
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const saveBtn = document.querySelector('.save-job-btn');
+    
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            const jobId = this.dataset.jobId;
+            const isSaved = this.dataset.saved === 'true';
+            
+            console.log('Save button clicked for job:', jobId);
+            
+            fetch(`/jobs/${jobId}/save`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                const icon = this.querySelector('i');
+                if (data.saved) {
+                    this.dataset.saved = 'true';
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    this.querySelector('.save-text').textContent = 'Saved';
+                    this.classList.remove('btn-outline-secondary');
+                    this.classList.add('btn-secondary');
+                } else {
+                    this.dataset.saved = 'false';
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    this.querySelector('.save-text').textContent = 'Save Job';
+                    this.classList.remove('btn-secondary');
+                    this.classList.add('btn-outline-secondary');
+                }
+                
+                // Show success message
+                const message = data.saved ? 'Job saved successfully!' : 'Job removed from saved';
+                alert(message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to save job. Please try again. Check console for details.');
+            });
+        });
+    } else {
+        console.log('Save button not found');
+    }
+});
+</script>
+{% endblock %}

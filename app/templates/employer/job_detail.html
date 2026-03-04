@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ job.title }} - Employer Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Employer Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('employer.dashboard') }}">
+                <i class="fas fa-building"></i> Employer Portal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('employer.dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('employer.my_jobs') }}">My Jobs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('jobs.post_job') }}">Post Job</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            {{ current_user.full_name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('employer_auth.logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2>{{ job.title }}</h2>
+                <p class="text-muted">{{ job.company }} • {{ job.location }}</p>
+            </div>
+            <div>
+                <a href="{{ url_for('employer.edit_job', job_id=job.id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Job
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <ul class="nav nav-tabs mb-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#pending">
+                            Pending ({{ applications_by_status.pending|length }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#reviewed">
+                            Reviewed ({{ applications_by_status.reviewed|length }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#accepted">
+                            Accepted ({{ applications_by_status.accepted|length }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#rejected">
+                            Rejected ({{ applications_by_status.rejected|length }})
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    {% for status, apps in applications_by_status.items() %}
+                    <div class="tab-pane fade {{ 'show active' if status == 'pending' else '' }}" id="{{ status }}">
+                        {% if apps %}
+                            {% for app in apps %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="d-flex">
+                                            <img src="{{ url_for('static', filename='uploads/' + app.applicant.profile_pic) }}" 
+                                                 class="rounded-circle me-3" width="60" height="60" alt="Profile">
+                                            <div>
+                                                <h5>{{ app.applicant.full_name }}</h5>
+                                                <p class="text-muted mb-1">{{ app.applicant.email }}</p>
+                                                <small class="text-muted">Applied {{ app.applied_at.strftime('%b %d, %Y') }}</small>
+                                            </div>
+                                        </div>
+                                        <a href="{{ url_for('employer.view_application', application_id=app.id) }}" 
+                                           class="btn btn-outline-primary">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted text-center py-4">No {{ status }} applications</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">Job Statistics</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small class="text-muted">Total Views</small>
+                            <h4>{{ job.views_count }}</h4>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Total Applications</small>
+                            <h4>{{ job.applications_count }}</h4>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Status</small>
+                            <p>
+                                <span class="badge bg-{{ 'success' if job.is_active else 'secondary' }}">
+                                    {{ 'Active' if job.is_active else 'Inactive' }}
+                                </span>
+                            </p>
+                        </div>
+                        <div>
+                            <small class="text-muted">Posted</small>
+                            <p>{{ job.created_at.strftime('%B %d, %Y') }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Job Details</h6>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Type:</strong> {{ job.job_type }}</p>
+                        <p><strong>Experience:</strong> {{ job.experience_min }}-{{ job.experience_max }} years</p>
+                        {% if job.salary_min %}
+                        <p><strong>Salary:</strong> ${{ "{:,}".format(job.salary_min) }} - ${{ "{:,}".format(job.salary_max) }}</p>
+                        {% endif %}
+                        {% if job.application_deadline %}
+                        <p><strong>Deadline:</strong> {{ job.application_deadline.strftime('%B %d, %Y') }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Saved Jobs{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Saved Jobs</h1>
+        <a href="{{ url_for('jobs.browse_jobs') }}" class="btn btn-primary">Browse More Jobs</a>
+    </div>
+
+    {% if saved_jobs.items %}
+        <div class="row">
+            {% for saved in saved_jobs.items %}
+                {% set job = saved.job %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">{{ job.title }}</h5>
+                                <button class="btn btn-sm btn-outline-danger remove-save-btn" data-job-id="{{ job.id }}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ job.company }}</h6>
+                            
+                            <div class="mb-2">
+                                {% if job.location %}
+                                    <span class="badge bg-light text-dark me-1">
+                                        <i class="fas fa-map-marker-alt"></i> {{ job.location }}
+                                    </span>
+                                {% endif %}
+                                {% if job.job_type %}
+                                    <span class="badge bg-light text-dark me-1">{{ job.job_type }}</span>
+                                {% endif %}
+                            </div>
+
+                            {% if job.salary_min and job.salary_max %}
+                                <p class="text-muted small mb-2">
+                                    <i class="fas fa-dollar-sign"></i> ${{ "{:,}".format(job.salary_min) }} - ${{ "{:,}".format(job.salary_max) }}
+                                </p>
+                            {% endif %}
+
+                            <p class="card-text text-muted small">
+                                {{ job.description[:150] }}{% if job.description|length > 150 %}...{% endif %}
+                            </p>
+
+                            <div class="mb-2">
+                                {% for skill in job.get_required_skills_list()[:5] %}
+                                    <span class="badge bg-primary me-1">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <p class="text-muted small mb-0">
+                                Saved {{ saved.saved_at.strftime('%B %d, %Y') }}
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{{ url_for('jobs.job_detail', job_id=job.id) }}" class="btn btn-sm btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if saved_jobs.pages > 1 %}
+            <nav aria-label="Saved jobs pagination">
+                <ul class="pagination justify-content-center">
+                    {% if saved_jobs.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('jobs.saved_jobs', page=saved_jobs.prev_num) }}">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in saved_jobs.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == saved_jobs.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('jobs.saved_jobs', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if saved_jobs.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('jobs.saved_jobs', page=saved_jobs.next_num) }}">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-bookmark fa-3x text-muted mb-3"></i>
+            <h4>No Saved Jobs</h4>
+            <p class="text-muted">You haven't saved any jobs yet. Start browsing to find your perfect match!</p>
+            <a href="{{ url_for('jobs.browse_jobs') }}" class="btn btn-primary">Browse Jobs</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const removeButtons = document.querySelectorAll('.remove-save-btn');
+    
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const jobId = this.dataset.jobId;
+            const card = this.closest('.col-md-6');
+            
+            if (confirm('Remove this job from saved?')) {
+                fetch(`/jobs/${jobId}/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.saved) {
+                        card.remove();
+                        
+                        // Check if no more jobs
+                        const remainingJobs = document.querySelectorAll('.col-md-6').length;
+                        if (remainingJobs === 0) {
+                            location.reload();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to remove job. Please try again.');
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

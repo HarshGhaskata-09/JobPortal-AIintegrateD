@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}View Applications - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="display-6 fw-bold">
+                    <i class="fas fa-file-alt me-2"></i>All Applications
+                </h1>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Applicant</th>
+                            <th>Job Title</th>
+                            <th>Company</th>
+                            <th>Status</th>
+                            <th>Applied Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if applications.items %}
+                            {% for app in applications.items %}
+                            <tr>
+                                <td>{{ app.id }}</td>
+                                <td>
+                                    <strong>{{ app.applicant.username }}</strong><br>
+                                    <small class="text-muted">{{ app.applicant.email }}</small>
+                                </td>
+                                <td>{{ app.job.title }}</td>
+                                <td>{{ app.job.company }}</td>
+                                <td>
+                                    {% if app.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif app.status == 'reviewed' %}
+                                        <span class="badge bg-info">Reviewed</span>
+                                    {% elif app.status == 'accepted' %}
+                                        <span class="badge bg-success">Accepted</span>
+                                    {% elif app.status == 'rejected' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ app.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ app.applied_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <a href="{{ url_for('jobs.job_detail', job_id=app.job.id) }}" 
+                                       class="btn btn-sm btn-info" target="_blank">
+                                        <i class="fas fa-eye"></i> View Job
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    No applications found
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if applications.pages > 1 %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if applications.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.applications', page=applications.prev_num) }}">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in applications.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == applications.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('admin.applications', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if applications.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.applications', page=applications.next_num) }}">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

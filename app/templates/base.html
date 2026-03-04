@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Job Recommendation Portal{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <i class="fas fa-rocket"></i> JobRecommender
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto ms-4">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('jobs.browse_jobs') }}">
+                            <i class="fas fa-search me-1"></i> Browse Jobs
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated and not current_user.is_employer %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+                                <i class="fas fa-chart-line me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('jobs.saved_jobs') }}">
+                                <i class="fas fa-bookmark me-1"></i> Saved Jobs
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <img src="{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}" 
+                                     class="rounded-circle me-2" width="35" height="35" alt="Profile" style="object-fit: cover; border: 2px solid var(--primary-color);">
+                                <span class="fw-semibold">{{ current_user.full_name }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
+                                {% if current_user.is_employer %}
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('employer.dashboard') }}">
+                                            <i class="fas fa-chart-line me-2 text-success"></i> Employer Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('employer.my_jobs') }}">
+                                            <i class="fas fa-briefcase me-2 text-info"></i> My Jobs
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('jobs.post_job') }}">
+                                            <i class="fas fa-plus-circle me-2 text-primary"></i> Post Job
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('portfolio.view_portfolio', username=current_user.username) }}">
+                                            <i class="fas fa-user me-2 text-primary"></i> My Portfolio
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                {% if current_user.is_admin %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('admin.dashboard') }}">
+                                            <i class="fas fa-shield-alt me-2 text-danger"></i> Admin Dashboard
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ url_for('auth.profile') }}">
+                                        <i class="fas fa-cog me-2 text-info"></i> Profile Settings
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ url_for('employer_auth.logout' if current_user.is_employer else 'auth.logout') }}">
+                                        <i class="fas fa-sign-out-alt me-2 text-danger"></i> Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-sign-in-alt me-1"></i> Login
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('auth.login') }}"><i class="fas fa-user me-2"></i> Job Seeker Login</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('employer_auth.login') }}"><i class="fas fa-building me-2"></i> Employer Login</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown ms-2">
+                            <a class="btn btn-light dropdown-toggle" href="#" id="registerDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-plus me-1"></i> Sign Up
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('auth.register') }}"><i class="fas fa-user me-2"></i> Job Seeker Sign Up</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('employer_auth.register') }}"><i class="fas fa-building me-2"></i> Employer Sign Up</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 15px;">
+                        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-modern mt-5">
+        <div class="container py-5">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-brand mb-3">
+                        <i class="fas fa-rocket"></i> JobRecommender
+                    </div>
+                    <p class="footer-description">
+                        Find your dream job with AI-powered recommendations tailored to your skills and experience.
+                    </p>
+                    <div class="social-links mt-4">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h5 class="footer-title">Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('main.about') }}"><i class="fas fa-chevron-right me-2"></i>About Us</a></li>
+                        <li><a href="{{ url_for('main.contact') }}"><i class="fas fa-chevron-right me-2"></i>Contact</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-title">For Employers</h5>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('jobs.post_job') }}"><i class="fas fa-chevron-right me-2"></i>Post a Job</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Browse Candidates</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Pricing Plans</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Success Stories</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-title">Newsletter</h5>
+                    <p class="footer-description">Subscribe to get the latest job updates.</p>
+                    <div class="newsletter-form">
+                        <input type="email" class="form-control" placeholder="Your email">
+                        <button class="btn btn-primary mt-2 w-100">
+                            <i class="fas fa-paper-plane me-2"></i>Subscribe
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start">
+                        <p class="mb-0">© 2026 JobRecommender. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <p class="mb-0">Made with Job Recruiter Team</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Chatbot Button -->
+    <button id="chatbotToggle" class="chatbot-float-btn" onclick="toggleChatbot()">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    <!-- Floating Chatbot Window -->
+    <div id="chatbotWindow" class="chatbot-float-window">
+        <div class="chatbot-float-header">
+            <div class="d-flex align-items-center">
+                <div class="chatbot-float-avatar me-2">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0">AI Job Assistant</h6>
+                    <small class="text-white-50">Online</small>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-link text-white" onclick="minimizeChatbot()">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="btn btn-sm btn-link text-white" onclick="closeChatbot()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="chatbot-float-messages" id="floatChatMessages">
+            <div class="chatbot-message bot">
+                <div class="chatbot-message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="chatbot-message-content">
+                    <p>Hello! I'm your AI job assistant. How can I help you today?</p>
+                    <div class="chatbot-suggestions">
+                        <button onclick="sendFloatMessage('Help me find a job')">Find Job for Me</button>
+                        <button onclick="sendFloatMessage('Show recent jobs')">Recent Jobs</button>
+                        <button onclick="sendFloatMessage('Jobs in India')">Jobs in India</button>
+                        <button onclick="sendFloatMessage('Remote jobs')">Remote Jobs</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chatbot-float-input">
+            <input type="text" id="floatChatInput" placeholder="Type your message..." onkeypress="handleFloatKeyPress(event)">
+            <button onclick="sendFloatMessage()" class="chatbot-send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <style>
+    .chatbot-float-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chatbot-float-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+    }
+
+    .chatbot-float-btn.hidden {
+        display: none;
+    }
+
+    .chatbot-float-window {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 380px;
+        height: 550px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+        z-index: 1001;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        animation: slideUp 0.3s ease;
+    }
+
+    .chatbot-float-window.show {
+        display: flex;
+    }
+
+    .chatbot-float-window.minimized {
+        height: 60px;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .chatbot-float-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chatbot-float-avatar {
+        width: 35px;
+        height: 35px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chatbot-float-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        background: #f8f9fa;
+    }
+
+    .chatbot-message {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chatbot-message.user {
+        flex-direction: row-reverse;
+    }
+
+    .chatbot-message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.9rem;
+    }
+
+    .chatbot-message.bot .chatbot-message-avatar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .chatbot-message.user .chatbot-message-avatar {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .chatbot-message-content {
+        background: white;
+        padding: 0.75rem;
+        border-radius: 12px;
+        max-width: 75%;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .chatbot-message.user .chatbot-message-content {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .chatbot-message-content p {
+        margin: 0 0 0.5rem 0;
+    }
+
+    .chatbot-message-content p:last-child {
+        margin-bottom: 0;
+    }
+
+    .chatbot-suggestions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-top: 0.5rem;
+    }
+
+    .chatbot-suggestions button {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 0.4rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+    }
+
+    .chatbot-suggestions button:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    .chatbot-float-input {
+        padding: 1rem;
+        background: white;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .chatbot-float-input input {
+        flex: 1;
+        padding: 0.6rem 0.875rem;
+        border: 2px solid #dee2e6;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        transition: border-color 0.2s ease;
+    }
+
+    .chatbot-float-input input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .chatbot-send-btn {
+        width: 38px;
+        height: 38px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chatbot-send-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .chatbot-typing {
+        display: flex;
+        gap: 0.25rem;
+        padding: 0.5rem 0;
+    }
+
+    .chatbot-typing-dot {
+        width: 6px;
+        height: 6px;
+        background: #adb5bd;
+        border-radius: 50%;
+        animation: typing 1.4s infinite;
+    }
+
+    .chatbot-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .chatbot-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+        30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    .chatbot-job-card {
+        background: #f8f9fa;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin: 0.5rem 0;
+        border-left: 3px solid #667eea;
+        font-size: 0.85rem;
+    }
+
+    .chatbot-job-card h6 {
+        margin: 0 0 0.25rem 0;
+        font-size: 0.9rem;
+        color: #212529;
+    }
+
+    .chatbot-job-card small {
+        color: #6c757d;
+        font-size: 0.75rem;
+    }
+
+    .chatbot-job-card .btn {
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .chatbot-float-window {
+            width: calc(100vw - 20px);
+            height: calc(100vh - 100px);
+            bottom: 10px;
+            right: 10px;
+        }
+
+        .chatbot-float-btn {
+            bottom: 20px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+        }
+    }
+    </style>
+
+    <script>
+    let floatSessionData = null;
+    let isFloatTyping = false;
+
+    function toggleChatbot() {
+        const window = document.getElementById('chatbotWindow');
+        const btn = document.getElementById('chatbotToggle');
+        
+        if (window.classList.contains('show')) {
+            closeChatbot();
+        } else {
+            window.classList.add('show');
+            window.classList.remove('minimized');
+            btn.classList.add('hidden');
+            document.getElementById('floatChatInput').focus();
+        }
+    }
+
+    function closeChatbot() {
+        const window = document.getElementById('chatbotWindow');
+        const btn = document.getElementById('chatbotToggle');
+        window.classList.remove('show');
+        btn.classList.remove('hidden');
+    }
+
+    function minimizeChatbot() {
+        const window = document.getElementById('chatbotWindow');
+        window.classList.toggle('minimized');
+    }
+
+    function handleFloatKeyPress(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendFloatMessage();
+        }
+    }
+
+    function sendFloatMessage(text) {
+        const input = document.getElementById('floatChatInput');
+        const message = text || input.value.trim();
+        
+        if (!message || isFloatTyping) return;
+        
+        addFloatMessage(message, 'user');
+        if (!text) input.value = '';
+        
+        showFloatTyping();
+        
+        fetch('/chatbot/message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                message: message,
+                session: floatSessionData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideFloatTyping();
+            if (data.session !== undefined) {
+                floatSessionData = data.session;
+            }
+            addFloatBotMessage(data);
+        })
+        .catch(error => {
+            hideFloatTyping();
+            addFloatMessage('Sorry, I encountered an error. Please try again.', 'bot');
+            console.error('Error:', error);
+        });
+    }
+
+    function addFloatMessage(text, sender) {
+        const messagesDiv = document.getElementById('floatChatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chatbot-message ${sender}`;
+        
+        messageDiv.innerHTML = `
+            <div class="chatbot-message-avatar">
+                <i class="fas fa-${sender === 'user' ? 'user' : 'robot'}"></i>
+            </div>
+            <div class="chatbot-message-content">
+                <p>${escapeHtml(text)}</p>
+            </div>
+        `;
+        
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function addFloatBotMessage(data) {
+        const messagesDiv = document.getElementById('floatChatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chatbot-message bot';
+        
+        let content = `<p>${data.message.replace(/\n/g, '<br>')}</p>`;
+        
+        if (data.jobs && data.jobs.length > 0) {
+            content += '<div class="mt-2">';
+            data.jobs.forEach(job => {
+                content += `
+                    <div class="chatbot-job-card">
+                        <h6>${escapeHtml(job.title)}</h6>
+                        <small><i class="fas fa-building"></i> ${escapeHtml(job.company)}</small><br>
+                        <small><i class="fas fa-map-marker-alt"></i> ${escapeHtml(job.location)}</small>
+                        <br><a href="/jobs/${job.id}" class="btn btn-sm btn-primary" target="_blank">View</a>
+                    </div>
+                `;
+            });
+            content += '</div>';
+        }
+        
+        if (data.suggestions && data.suggestions.length > 0) {
+            content += '<div class="chatbot-suggestions">';
+            data.suggestions.forEach(suggestion => {
+                content += `<button onclick="sendFloatMessage('${escapeHtml(suggestion)}')">${escapeHtml(suggestion)}</button>`;
+            });
+            content += '</div>';
+        }
+        
+        messageDiv.innerHTML = `
+            <div class="chatbot-message-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="chatbot-message-content">
+                ${content}
+            </div>
+        `;
+        
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function showFloatTyping() {
+        isFloatTyping = true;
+        const messagesDiv = document.getElementById('floatChatMessages');
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'floatTypingIndicator';
+        typingDiv.className = 'chatbot-message bot';
+        typingDiv.innerHTML = `
+            <div class="chatbot-message-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="chatbot-message-content">
+                <div class="chatbot-typing">
+                    <div class="chatbot-typing-dot"></div>
+                    <div class="chatbot-typing-dot"></div>
+                    <div class="chatbot-typing-dot"></div>
+                </div>
+            </div>
+        `;
+        messagesDiv.appendChild(typingDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function hideFloatTyping() {
+        isFloatTyping = false;
+        const typingDiv = document.getElementById('floatTypingIndicator');
+        if (typingDiv) typingDiv.remove();
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

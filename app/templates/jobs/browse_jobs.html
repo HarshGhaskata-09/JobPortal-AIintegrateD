@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Jobs - Job Recommendation Portal{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Browse Jobs</h1>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-3">
+        <input type="text" class="form-control" name="search" placeholder="Search title or company" value="{{ request.args.get('search', '') }}">
+    </div>
+    <div class="col-md-3">
+        <input type="text" class="form-control" name="location" placeholder="Location" value="{{ request.args.get('location', '') }}">
+    </div>
+    <div class="col-md-2">
+        <select name="job_type" class="form-select">
+            <option value="">Any type</option>
+            <option value="Full-time">Full-time</option>
+            <option value="Part-time">Part-time</option>
+            <option value="Remote">Remote</option>
+            <option value="Contract">Contract</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="category" class="form-select">
+            <option value="">Any category</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+</form>
+
+{% if jobs.items %}
+    {% for job in jobs.items %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{{ url_for('jobs.job_detail', job_id=job.id) }}">{{ job.title }}</a>
+                </h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ job.company }}{% if job.location %} · {{ job.location }}{% endif %}</h6>
+                {% if job.job_type %}
+                    <span class="badge bg-secondary">{{ job.job_type }}</span>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+
+    <nav aria-label="Job pagination">
+        <ul class="pagination">
+            {% if jobs.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('jobs.browse_jobs', page=jobs.prev_num) }}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Previous</span></li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Page {{ jobs.page }} of {{ jobs.pages }}
+                </span>
+            </li>
+
+            {% if jobs.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('jobs.browse_jobs', page=jobs.next_num) }}">Next</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Next</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+{% else %}
+    <p class="text-muted">No jobs found.</p>
+{% endif %}
+{% endblock %}
+
+
